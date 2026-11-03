@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple original icon: a picture frame with hills and a sun on a blue rounded square. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FF2D7FF9"
+        android:pathData="M10,2 H38 A8,8 0 0 1 46,10 V38 A8,8 0 0 1 38,46 H10 A8,8 0 0 1 2,38 V10 A8,8 0 0 1 10,2 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9,12 H39 A2,2 0 0 1 41,14 V34 A2,2 0 0 1 39,36 H9 A2,2 0 0 1 7,34 V14 A2,2 0 0 1 9,12 Z" />
+    <path
+        android:fillColor="#FF2D7FF9"
+        android:pathData="M11,32 L19,22 L25,28 L29,24 L37,32 Z" />
+    <path
+        android:fillColor="#FFF5B14C"
+        android:pathData="M31,19 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>
