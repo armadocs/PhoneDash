@@ -24,6 +24,9 @@ public class ActionReceiver extends BroadcastReceiver {
         final boolean now = !i.getBooleanExtra(EXTRA_DONE, false);
 
         // Show the tick straight away, then tell Notion; undo if Notion says no.
+        // A ticked item stays crossed out for a moment, then drops off the list.
+        final long tickedAt = System.currentTimeMillis();
+        if (now) DashListService.justTicked.put(page, tickedAt);
         Brief.toggleCached(c, page, now);
         DashWidget.render(c);
         final PendingResult pr = goAsync();
@@ -31,10 +34,15 @@ public class ActionReceiver extends BroadcastReceiver {
             try {
                 Notion.setDone(c, page, now);
                 Prefs.setLastError(c, "");
+                long wait = DashListService.SHOW_TICK_MS - (System.currentTimeMillis() - tickedAt);
+                if (now && wait > 0) {
+                    try { Thread.sleep(wait + 100); } catch (InterruptedException ignored) {}
+                }
             } catch (Exception e) {
                 Brief.toggleCached(c, page, !now);
                 Prefs.setLastError(c, "Couldn't tick in Notion: " + e.getMessage());
             } finally {
+                DashListService.justTicked.remove(page);
                 DashWidget.render(c);
                 pr.finish();
             }

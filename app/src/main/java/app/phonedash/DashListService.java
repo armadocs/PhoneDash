@@ -19,6 +19,16 @@ import java.util.Locale;
 
 /** Feeds the widget's scrolling list: section headers and items from the offline brief. */
 public class DashListService extends RemoteViewsService {
+    /** How long a just-ticked item stays on screen (crossed out) before it drops off. */
+    static final long SHOW_TICK_MS = 2500;
+    /** pageId → when it was ticked on this phone. */
+    static final java.util.Map<String, Long> justTicked = new java.util.concurrent.ConcurrentHashMap<>();
+
+    static boolean visible(Brief.Item it) {
+        if (!it.done) return true;
+        Long t = justTicked.get(it.pageId);
+        return t != null && System.currentTimeMillis() - t < SHOW_TICK_MS;
+    }
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
         return new Factory(getApplicationContext());
@@ -27,6 +37,7 @@ public class DashListService extends RemoteViewsService {
     private static final class Row {
         Brief.Section section;
         Brief.Item item; // null = section header
+        int count;        // header: items shown
     }
 
     private static final class Factory implements RemoteViewsFactory {
@@ -44,11 +55,14 @@ public class DashListService extends RemoteViewsService {
             Brief b = Brief.cached(c);
             if (b == null) return;
             for (Brief.Section s : b.sections) {
-                if (s.items.isEmpty()) continue;
+                List<Brief.Item> shown = new ArrayList<>();
+                for (Brief.Item it : s.items) if (visible(it)) shown.add(it);
+                if (shown.isEmpty()) continue;
                 Row h = new Row();
                 h.section = s;
+                h.count = shown.size();
                 rows.add(h);
-                for (Brief.Item it : s.items) {
+                for (Brief.Item it : shown) {
                     Row r = new Row();
                     r.section = s;
                     r.item = it;
@@ -78,10 +92,7 @@ public class DashListService extends RemoteViewsService {
                 RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.row_header);
                 v.setTextViewText(R.id.h_title, s.title.toUpperCase(Locale.getDefault()));
                 v.setTextColor(R.id.h_title, accent);
-                int done = 0;
-                for (Brief.Item it : s.items) if (it.done) done++;
-                v.setTextViewText(R.id.h_count, tickable(s) && done > 0
-                        ? done + " / " + s.items.size() : String.valueOf(s.items.size()));
+                v.setTextViewText(R.id.h_count, String.valueOf(r.count));
                 return v;
             }
 

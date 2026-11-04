@@ -122,7 +122,7 @@ public class DashWidget extends AppWidgetProvider {
                 if (!"tasks".equals(s.kind)) continue;
                 for (Brief.Item it : s.items) { if (it.done) done++; else open++; }
             }
-            count = open + " to do" + (done > 0 ? " · " + done + " done" : "") + " · ";
+            count = open + " to do" + (done > 0 ? " · " + done + " done today" : "") + " · ";
         }
         String err = Prefs.lastError(c);
         if (!err.isEmpty()) return "⚠ " + err;
